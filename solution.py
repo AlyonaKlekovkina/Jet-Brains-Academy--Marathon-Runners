@@ -80,8 +80,30 @@ if __name__ == '__main__':
                 x_train.append(i[j])
         final_nested_list.append(x_train)
 
-    print(y_train)
-    print(final_nested_list)
 
+    age_list = []
+    speed_list = []
+    for i in final_nested_list:
+        for j in range(len(i)):
+            if j == 0:
+                speed_list.append(i[j])
+            if j == 1:
+                age_list.append(i[j])
 
+    sorted_age_list = sorted(age_list)
+    sorted_speed_list = sorted(speed_list)
+    updated_age_speed = []
+    for i in final_nested_list:
+        person_results = []
+        for j in range(len(i)):
+            if j == 0:
+                normalized_speed = (i[j] - float(sorted_speed_list[0])) / (float(sorted_speed_list[-1]) - float(sorted_speed_list[0]))
+                person_results.append(normalized_speed)
+            if j == 1:
+                normalized_age = (i[j] - int(sorted_age_list[0])) / (int(sorted_age_list[-1]) - int(sorted_age_list[0]))
+                person_results.append(normalized_age)
+            elif j != 0 and j != 1:
+                person_results.append(i[j])
+        updated_age_speed.append(person_results)
 
+    print(updated_age_speed)
