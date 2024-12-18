@@ -93,7 +93,7 @@ if __name__ == '__main__':
         return final_nested_list
 
 
-    def normalize_age_speed_list(final_nested_list):
+    def normalize_age_speed_list(final_nested_list, test_vector):
         age_list = []
         speed_list = []
         for i in final_nested_list:
@@ -102,6 +102,8 @@ if __name__ == '__main__':
                     speed_list.append(i[j])
                 if j == 1:
                     age_list.append(i[j])
+        speed_list.append(test_vector[0])
+        age_list.append(test_vector[1])
         sorted_age_list = sorted(age_list)
         sorted_speed_list = sorted(speed_list)
         updated_age_speed = []
@@ -152,29 +154,80 @@ if __name__ == '__main__':
         return transformed_list
 
 
+    def k_closest_labels(test_vector, list_with_labels, k):
+        data = []
+        for i in range(len(test_vector)):
+            label = 0
+            if list_with_labels[i][0] == 'Yes':
+                label = 1
+            elif list_with_labels[i][0] == 'No':
+                label = 0
+            lable_n_distance = (test_vector[i], label)
+            data.append(lable_n_distance)
+        data.sort(key=lambda tup: tup[0])
+        k_list_of_labels = []
+        for i in range(k):
+            k_list_of_labels.append(data[i][1])
+        return k_list_of_labels
+
+
+    def predict(test_vector, k):
+        age_n_speed_list = normalize_age_speed_list(combined_list, test_vector)
+        normalized_age_and_speed_list = age_n_speed_list[0]
+        sorted_age_list = age_n_speed_list[1]
+        sorted_speed_list = age_n_speed_list[2]
+        transformed_test_vector = transform_test_case(test_vector, sorted_age_list, sorted_speed_list,
+                                                          vector_dictionary)
+        result = calc_dists(transformed_test_vector, normalized_age_and_speed_list)
+        labes_and_distances_list = k_closest_labels(result, nested_list_without_spaces, k)
+        return labes_and_distances_list
+
+
+    def predict_result(k):
+        test_vector_one = [424, 40, 1.42, 'nothing']
+        test_vector_two = [210, 39, 3.19, 'cycling 3h']
+        test_vector_three = [518, 33, 3.12, 'nothing']
+        result_list = []
+        for i in range(3):
+            if i == 0:
+                result_list.append(predict(test_vector_one, k))
+            elif i == 1:
+                result_list.append(predict(test_vector_two, k))
+            elif i == 2:
+                result_list.append(predict(test_vector_three, k))
+        return result_list
+
+
+    def form_print_statement(nested_list):
+        response = []
+        for i in nested_list:
+            count_1 = 0
+            count_0 = 0
+            for j in i:
+                if j == 0:
+                    count_0 += 1
+                elif j == 1:
+                    count_1 += 1
+            if count_0 > count_1:
+                response.append(0)
+            elif count_1 > count_0:
+                response.append(1)
+        return response
+
+
     nested_list_without_spaces = nested_list_nospaces()
-    #print(nested_list_without_spaces)
     nested_list_converted = nested_list_converted_info(nested_list_without_spaces)
     converted_info = nested_list_converted[0]
     activity_list = nested_list_converted[1]
-    #print(converted_info)
-    #print(activity_list)
     vector_dictionary_n_raw_list = create_vectordict_prelist(activity_list)
     vector_dictionary = vector_dictionary_n_raw_list[0]
     vector_lists = vector_dictionary_n_raw_list[1]
-    #print(vector_dictionary)
-    #print(vector_lists)
     combined_list = create_combined_list(converted_info, vector_dictionary)
-    #print(combined_list)
-    age_n_speed_list = normalize_age_speed_list(combined_list)
-    normalized_age_and_speed_list = age_n_speed_list[0]
-    sorted_age_list = age_n_speed_list[1]
-    sorted_speed_list = age_n_speed_list[2]
-    #print(normalized_age_and_speed_list)
-    #print(sorted_age_list)
-    #print(sorted_speed_list)
-    test_vector = [424, 40, 1.42, 'nothing']
-    transformed_test_vector = transform_test_case(test_vector, sorted_age_list, sorted_speed_list, vector_dictionary)
-    #print(transformed_test_vector)
-    result = calc_dists(transformed_test_vector, normalized_age_and_speed_list)
-    print(result)
+
+    for_k_one = predict_result(1)
+    for_k_three = predict_result(3)
+    for_k_five = predict_result(5)
+
+    print('Result with k = 1:', form_print_statement(for_k_one))
+    print('Result with k = 3:', form_print_statement(for_k_three))
+    print('Result with k = 5:', form_print_statement(for_k_five))
